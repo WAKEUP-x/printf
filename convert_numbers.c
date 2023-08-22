@@ -28,14 +28,11 @@ unsigned int conv_di(va_list args, buff_t *out, unsigned char flgs,
 
 	if (len == LONG)
 		e = va_arg(args, long int);
-	else
 		e = va_arg(args, int);
 	if (len == SHORT)
 		e = (short)e;
-
 	if (SPACE_FLG == 1 && e >= 0)
 		t += _memcpy(out, &space, 1);
-
 	if (prec <= 0 && NEG_FLG == 0)
 	{
 		if (e == LONG_MIN)
@@ -49,29 +46,21 @@ unsigned int conv_di(va_list args, buff_t *out, unsigned char flgs,
 		count += (e < 0) ? 1 : 0;
 		count += (PLUS_FLG == 1 && e >= 0) ? 1 : 0;
 		count += (SPACE_FLG == 1 && e >= 0) ? 1 : 0;
-
 		if (ZERO_FLG == 1 && PLUS_FLG == 1 && e >= 0)
 			t += _memcpy(out, &plus, 1);
-
 		if (ZERO_FLG == 1 && e < 0)
 			t += _memcpy(out, &neg, 1);
-
 		pad = (ZERO_FLG == 1) ? '0' : ' ';
 		for (wth -= count; wth > 0; wth--)
 			t += _memcpy(out, &pad, 1);
 	}
-
 	if (ZERO_FLG == 0 && e < 0)
 		t += _memcpy(out, &neg, 1);
-
 	if (ZERO_FLG == 0 && (PLUS_FLG == 1 && e >= 0))
 		t += _memcpy(out, &plus, 1);
-
 	if (!(e == 0 && prec == 0))
 		t += conv_sbase(out, e, "0123456789", flgs, 0, prec);
-
 	t += pr_nwth(out, t, flgs, wth);
-
 	return (t);
 }
 
