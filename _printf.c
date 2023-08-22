@@ -1,67 +1,88 @@
 #include "main.h"
 
-void print_buffer(char buffer[], int *buff_ind);
+void wipe(va_list args, buff_t *out);
+int r_printf(const char *format, va_list args, buff_t *out);
+int _print(const char *format, ...);
 
 /**
- * _printf - Printf function
- * @format: format.
- * Return: Printed chars.
+ * wipe - cleans operations
+ * @args: va_list of arguments
+ * @out: buff_t struct
+ */
+void wipe(va_list args, buff_t *out)
+{
+	va_end(args);
+	write(1, out->st, out->len);
+	free_buff(out);
+}
+
+/**
+ * r_printf - scans format string
+ * @format: character string
+ * @out: buff_t struct buffer
+ * @args: va_list arguments
+ * Return: ...
+ */
+int r_printf(const char *format, va_list args, buff_t *out)
+{
+	int x, wth, prec, t = 0;
+	char tmpo;
+	unsigned char flgs, len;
+	unsigned int (*f)(va_list, buff_t *, unsigned char, int, int,
+			unsigned char);
+
+	for (x = 0; *(format + x); x++)
+	{
+		len = 0;
+		if (*(format + x) == '%')
+		{
+			tmpo = 0;
+			flgs = h_flgs(format + x + 1, &tmpo);
+			wth = h_wth(args, format + x + tmpo + 1, &tmpo);
+			prec = h_p(args, format + x + tmpo + 1, &tmpo);
+			len = h_length(format + x + tmpo + 1, &tmpo);
+
+			f = h_spec(format + x + tmpo + 1);
+			if (f != NULL)
+			{
+				x += tmpo + 1;
+				t += f(args, out, flgs, wth, prec, len);
+				continue;
+			}
+			else if (*(format + x + tmpo + 1) == '\0')
+			{
+				t = -1;
+				break;
+			}
+
+		}
+		t += _memcpy(out, (format + x), 1);
+		x += (len != 0) ? 1 : 0;
+	}
+	wipe(args, out);
+	return (t);
+}
+
+/**
+ * _printf - prints a datatype
+ * @format: char string
+ * Return: char to print
  */
 int _printf(const char *format, ...)
 {
-	int i, printed = 0, printed_chars = 0;
-	int flags, width, precision, size, buff_ind = 0;
-	va_list list;
-	char buffer[BUFF_SIZE];
+	buff_t *out;
+	va_list args;
+	int t;
 
 	if (format == NULL)
 		return (-1);
+	out = init_buff();
+	if (out ==  NULL)
+		return (-1);
 
-	va_start(list, format);
+	va_start(args, format);
 
-	for (i = 0; format && format[i] != '\0'; i++)
-	{
-		if (format[i] != '%')
-		{
-			buffer[buff_ind++] = format[i];
-			if (buff_ind == BUFF_SIZE)
-				print_buffer(buffer, &buff_ind);
-			/* write(1, &format[i], 1);*/
-			printed_chars++;
-		}
-		else
-		{
-			print_buffer(buffer, &buff_ind);
-			flags = get_flags(format, &i);
-			width = get_width(format, &i, list);
-			precision = get_precision(format, &i, list);
-			size = get_size(format, &i);
-			++i;
-			printed = handle_print(format, &i, list, buffer,
-				flags, width, precision, size);
-			if (printed == -1)
-				return (-1);
-			printed_chars += printed;
-		}
-	}
+	t = r_printf(format, args, out);
 
-	print_buffer(buffer, &buff_ind);
-
-	va_end(list);
-
-	return (printed_chars);
+	return (t);
 }
-
-/**
- * print_buffer - Prints the contents of the buffer if it exist
- * @buffer: Array of chars
- * @buff_ind: Index at which to add next char, represents the length.
- */
-void print_buffer(char buffer[], int *buff_ind)
-{
-	if (*buff_ind > 0)
-		write(1, &buffer[0], *buff_ind);
-
-	*buff_ind = 0;
-}
-
