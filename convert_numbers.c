@@ -28,6 +28,7 @@ unsigned int conv_di(va_list args, buff_t *out, unsigned char flgs,
 
 	if (len == LONG)
 		e = va_arg(args, long int);
+	else
 		e = va_arg(args, int);
 	if (len == SHORT)
 		e = (short)e;
