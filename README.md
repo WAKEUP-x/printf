@@ -1,1 +1,3 @@
-0x11. C - printf
+ALX printf Project
+
+Authors: Prince Asirifi, Achraf Dagha
