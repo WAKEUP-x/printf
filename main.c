@@ -5,6 +5,8 @@
 /**
  * main - Entry point
  *
+ * the printf function does not recognize %r
+ * while for your _printf it should print %r as it is
  * Return: Always 0
  */
 int main(void)
